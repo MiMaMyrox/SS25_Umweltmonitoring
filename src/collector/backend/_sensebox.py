@@ -74,7 +74,7 @@ class SenseBox:
                 # if len(data) >= 10_000 * count:
                 #     print(f"{request_date} - Current Length: {len(data)}")
                 #     count += 1
-                print(f"{request_date} - Current Length: {len(data)}")
+                # print(f"{request_date} - Current Length: {len(data)}")
 
             except HTTPError as e:
                 if e.code == 404:
