@@ -1,0 +1,51 @@
+﻿services:
+  db:
+    image: postgres:15  # Use the official PostgreSQL image (version 15)
+    container_name: sensebox-db
+    restart: always
+    env_file: .env  # Load DB credentials from external .env file
+    volumes:
+      - db-data:/var/lib/postgresql/data  # Named volume for persistent storage
+      - ./db-init:/docker-entrypoint-initdb.d  # Init SQL on first run
+    ports:
+      - "6543:5432"  # Expose Postgres to host machine
+
+  collector:
+    build: ./src/collector
+    container_name: data-collector
+    depends_on:
+      - db
+    env_file: .env
+    volumes:
+      - ./src/collector:/app/src/collector
+    ports:
+      - "8000:8000"
+    command: ["python", "./src/collector/run_collector.py"]
+
+  dashboard:
+    build: ./src/dashboard  # Build image from dashboard/Dockerfile
+    container_name: dashboard
+    depends_on:
+      - db  # Start this container only after db is ready
+      - collector
+    env_file: .env
+    volumes:
+      - ./src/dashboard:/app/src/dashboard
+    ports:
+      - "8501:8501"
+    command: streamlit run ./src/dashboard/run_dashboard.py --server.port=8501 --server.address=0.0.0.0
+
+
+  model:
+    build: ./src/model
+    container_name: model
+    depends_on:
+      - db
+    env_file: .env
+    volumes:
+      - ./src/model:/app/src/model
+    ports:
+      - "9000:9000"
+    command: ["python", "./src/model/run_model.py"]
+volumes:
+  db-data:  # Named volume for Postgres to persist data

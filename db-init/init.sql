@@ -1,0 +1,5 @@
+﻿CREATE TABLE IF NOT EXISTS sense_data (
+    id SERIAL PRIMARY KEY,
+    sensor_value FLOAT,
+    recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
